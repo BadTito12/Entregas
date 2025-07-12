@@ -1,91 +1,54 @@
-// Definir el array de objeto, cada curso se representa con un id
+class Curso {
+  constructor(id, nombre, precio) {
+    this.id = id;
+    this.nombre = nombre;
+    this.precio = precio;
+  }
+}
+
 const cursos = [
-  { id: 1, nombre: "JavaScript Inicial", precio: 3000 },
-  { id: 2, nombre: "HTML y CSS", precio: 2500 },
-  { id: 3, nombre: "React Básico", precio: 4000 },
-  { id: 4, nombre: "PHP Intermedio", precio: 5500 },
+  new Curso(1, "Pasteleria Inicial", 3000),
+  new Curso(2, "Cocina Basica", 2500),
+  new Curso(3, "Panaderia Basica", 4400),
+  new Curso(4, "Bartender", 6000),
+  new Curso(5, "Cafeteria", 5500),
 ];
 
-// Se declaran variables para guardar los elementos seleccionados por el usuario
-let seleccionados = [];
-let total = 0;
+let inscripciones = JSON.parse(localStorage.getItem("inscripciones")) || [];
 
-// Funcion para mostrar los cursos disponibles usando alert
-function mostrarCursos() {
-  let mensaje = "Cursos disponibles:\n";
-  cursos.forEach((curso) => {
-    mensaje += `${curso.id}. ${curso.nombre} - $${curso.precio}\n`;
+const form = document.getElementById("formulario");
+const resumen = document.getElementById("resumen");
+
+function guardarEnStorage(nombre, curso) {
+  const nuevaInscripcion = {
+    nombre,
+    curso: curso.nombre,
+    precio: curso.precio
+  };
+}
+
+inscripciones.push(nuevaInscripcion);
+localStorage.setItem("inscripciones", JSON.stringify(inscripciones));
+
+function renderizarResumen() {
+  resumen.innerHTML = "<h2>Inscripciones:</h2>";
+  inscripciones.forEach((item) => {
+    const div = document.createElement("div");
+    div.textContent = `${item.nombre} - ${item.curso} ($${item.precio})`;
+    resumen.appendChild(div);
   });
-
-  // Se muestran los cursos por alert
-  alert(mensaje);
 }
 
-// Funcion que registra el curso elegido por el usuario
-function registrarCurso(listaCursos, listaSeleccionados, totalActual) {
-  const opcion = parseInt(
-    prompt(
-      "Ingrese el número del curso:\n1. JavaScript Inicial\n2. HTML y CSS\n3. React Básico\n4. PHP Intermedio"
-    )
-  );
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
 
-  let cursoElegido;
+  const nombre = document.getElementById("nombre").value;
+  const idcursos = parseInt(document.getElementById("cursos").value);
+  const cursosSeleccionado = cursos.find(cursos => cursos.id === idcursos);
 
-  // Utilizo switch para verificar si la opciones son validas
-  switch (opcion) {
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-      cursoElegido = listaCursos.find((curso) => curso.id === opcion);
-      break;
-    default:
-      alert("Opción inválida. Intente nuevamente.");
-      return totalActual;
-  }
+  guardarEnStorage(nombre, cursosSeleccionado);
+  renderizarResumen()
+  form.reset();
+});
 
-  // Agrega el curso elegido a la lista de seleccionados y actualiza el total
-  listaSeleccionados.push(cursoElegido);
-  totalActual += cursoElegido.precio;
-
-  alert(
-    `¡Felicidades, te inscribiste a "${cursoElegido.nombre}".\nTotal acumulado: $${totalActual}`
-  );
-  return totalActual;
-}
-
-// Muestra el resumen final con los cursos seleccioandos y el total a pagar
-function mostrarResumen(cursosSeleccionados, totalFinal) {
-  if (cursosSeleccionados.length === 0) {
-    alert("No seleccionaste ningún curso.");
-    return;
-  }
-
-  let resumen = "Resumen de Inscripción:\n\n";
-  cursosSeleccionados.forEach((curso) => {
-    resumen += `- ${curso.nombre} ($${curso.precio})\n`;
-  });
-  resumen += `\nTotal a pagar: $${totalFinal}`;
-
-  alert(resumen);
-}
-
-// Funcion principal para ejecutar el simulador
-function ejecutarSimulador() {
-  alert("¡Bienvenido al simulador de Inscripción!");
-  mostrarCursos();
-
-  let continuar = true;
-
-  // Bucle para permitir inscribirse en mas de un curso
-  while (continuar) {
-    total = registrarCurso(cursos, seleccionados, total);
-    continuar = confirm("¿Desea inscribirse en otro curso?");
-  }
-
-  // Muestra el resumen final
-  mostrarResumen(seleccionados, total);
-}
-
-// Llama a la funcion principal para iniciar el simulador
-ejecutarSimulador();
+renderizarResumen();
