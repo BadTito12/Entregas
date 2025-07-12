@@ -7,13 +7,14 @@ class Curso {
 }
 
 const cursos = [
-  new Curso(1, "Pasteleria Inicial", 3000),
-  new Curso(2, "Cocina Basica", 2500),
-  new Curso(3, "Panaderia Basica", 4400),
+  new Curso(1, "Pastelería Inicial", 3000),
+  new Curso(2, "Cocina Básica", 2500),
+  new Curso(3, "Panadería Básica", 4400),
   new Curso(4, "Bartender", 6000),
-  new Curso(5, "Cafeteria", 5500),
+  new Curso(5, "Cafetería", 5500),
 ];
 
+// Cargar inscripciones desde localStorage
 let inscripciones = JSON.parse(localStorage.getItem("inscripciones")) || [];
 
 const form = document.getElementById("formulario");
@@ -23,12 +24,12 @@ function guardarEnStorage(nombre, curso) {
   const nuevaInscripcion = {
     nombre,
     curso: curso.nombre,
-    precio: curso.precio
+    precio: curso.precio,
   };
-}
 
-inscripciones.push(nuevaInscripcion);
-localStorage.setItem("inscripciones", JSON.stringify(inscripciones));
+  inscripciones.push(nuevaInscripcion);
+  localStorage.setItem("inscripciones", JSON.stringify(inscripciones));
+}
 
 function renderizarResumen() {
   resumen.innerHTML = "<h2>Inscripciones:</h2>";
@@ -42,13 +43,19 @@ function renderizarResumen() {
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
-  const nombre = document.getElementById("nombre").value;
-  const idcursos = parseInt(document.getElementById("cursos").value);
-  const cursosSeleccionado = cursos.find(cursos => cursos.id === idcursos);
+  const nombre = document.getElementById("nombre").value.trim();
+  const idCurso = parseInt(document.getElementById("curso").value);
+  const cursoSeleccionado = cursos.find((curso) => curso.id === idCurso);
 
-  guardarEnStorage(nombre, cursosSeleccionado);
-  renderizarResumen()
+  if (!nombre || !cursoSeleccionado) {
+    alert("Por favor completá tu nombre y seleccioná un curso.");
+    return;
+  }
+
+  guardarEnStorage(nombre, cursoSeleccionado);
+  renderizarResumen();
   form.reset();
 });
 
+// Mostrar inscripciones al cargar
 renderizarResumen();
