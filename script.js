@@ -14,20 +14,25 @@ const cursos = [
   new Curso(5, "Cafetería", 5500),
 ];
 
-// Cargar inscripciones desde localStorage
-let inscripciones = JSON.parse(localStorage.getItem("inscripciones")) || [];
+// Limpiar localStorage cada vez que se refresque la página
+localStorage.removeItem("inscripciones");
+
+// Iniciar array vacío
+let inscripciones = [];
 
 const form = document.getElementById("formulario");
 const resumen = document.getElementById("resumen");
 
-function guardarEnStorage(nombre, curso) {
-  const nuevaInscripcion = {
-    nombre,
-    curso: curso.nombre,
-    precio: curso.precio,
-  };
+function guardarEnStorage(nombre, cursosSeleccionados) {
+  cursosSeleccionados.forEach(curso => {
+    const nuevaInscripcion = {
+      nombre,
+      curso: curso.nombre,
+      precio: curso.precio,
+    };
+    inscripciones.push(nuevaInscripcion);
+  });
 
-  inscripciones.push(nuevaInscripcion);
   localStorage.setItem("inscripciones", JSON.stringify(inscripciones));
 }
 
@@ -44,18 +49,21 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const nombre = document.getElementById("nombre").value.trim();
-  const idCurso = parseInt(document.getElementById("curso").value);
-  const cursoSeleccionado = cursos.find((curso) => curso.id === idCurso);
 
-  if (!nombre || !cursoSeleccionado) {
-    alert("Por favor completá tu nombre y seleccioná un curso.");
+  // Obtener todos los cursos seleccionados del select múltiple
+  const opcionesSeleccionadas = Array.from(document.getElementById("curso").selectedOptions);
+  const idsCursos = opcionesSeleccionadas.map(option => parseInt(option.value));
+
+  const cursosSeleccionados = cursos.filter(curso => idsCursos.includes(curso.id));
+
+  if (!nombre || cursosSeleccionados.length === 0) {
+    alert("Por favor completá tu nombre y seleccioná al menos un curso.");
     return;
   }
 
-  guardarEnStorage(nombre, cursoSeleccionado);
+  guardarEnStorage(nombre, cursosSeleccionados);
   renderizarResumen();
   form.reset();
 });
 
-// Mostrar inscripciones al cargar
-renderizarResumen();
+// No cargamos nada en renderizarResumen porque borramos todo al recargar
